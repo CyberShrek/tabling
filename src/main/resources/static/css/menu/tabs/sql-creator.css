@@ -1,0 +1,32 @@
+#sql-creator .procedures {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    background: white;
+}
+
+#sql-creator:hover .procedures, #sql-creator.selected .procedures{
+    min-height: 100px;
+}
+
+#sql-creator .procedures .procedure {
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    margin-right: auto;
+    max-height: 20px;
+}
+
+#sql-creator .date-field {
+    cursor: text;
+    margin-left: auto;
+    height: 50%;
+    text-align: center;
+    font-weight: bold;
+    background: initial;
+    border: 0;
+    border-radius: var(--border-radius);
+}

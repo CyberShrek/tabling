@@ -1,0 +1,183 @@
+:root {
+    --tabs-pad-width: 300px;
+    --collapsed-tabs-pad-width: 35px;
+    --block-margin: 15px;
+    --block-padding: 15px;
+
+    --tabs-pad-open-duration: 0.3s;
+    --block-open-duration: 0.3s;
+}
+#tabs-pad {
+    user-select: none;
+
+    display: grid;
+    align-items: start;
+
+    flex-basis: var(--tabs-pad-width);
+    max-width: var(--tabs-pad-width);
+
+    padding-top: var(--header-height);
+
+    background-color: var(--second-color);
+
+    border-right: var(--border);
+
+    transition: max-width var(--tabs-pad-open-duration);
+}
+#tabs-pad.collapse {
+    max-width: var(--collapsed-tabs-pad-width);
+}
+
+#tabs-pad .tabs {
+    border-top: var(--border);
+    border-bottom: var(--border);
+    max-width: var(--tabs-pad-width);
+    transition: max-width var(--tabs-pad-open-duration);
+}
+#tabs-pad.collapse .tabs{
+    max-width: var(--collapsed-tabs-pad-width);
+}
+
+#tabs-pad .tab {
+    border-right: 0 solid var(--selects-color);
+    transition: border-right-width 0.2s linear, transform var(--tabs-pad-open-duration);
+}
+#tabs-pad .tab.selected  {
+    background-color: white;
+    border-right: 8px solid var(--selects-color);
+}
+#tabs-pad .tab .title{
+    cursor: pointer;
+}
+#tabs-pad.collapse .tab .title {
+    padding-left: 0;
+}
+
+#tabs-pad .action {
+    margin: var(--block-margin);
+    max-width: calc(var(--tabs-pad-width) - 2*var(--block-margin));
+    background-color: var(--main-color);
+    border: 0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+
+    transition: transform var(--tabs-pad-open-duration), box-shadow var(--tabs-pad-open-duration) ease-in;
+}
+#tabs-pad .action .title{
+    border-radius: calc(var(--border-radius) - var(--border-width)/2);
+}
+#tabs-pad.collapse .action{
+    transform: translateX(-110%);
+    box-shadow: 0 0 0 lightgrey;
+
+    transition: transform calc(var(--tabs-pad-open-duration)*2), box-shadow calc(var(--tabs-pad-open-duration)/2) ease-out;
+}
+
+#tabs-pad .tab .title, #tabs-pad .action .title{
+    width: 100%;
+    padding: calc(var(--block-padding)/2);
+
+    justify-content: center;
+
+    background-color: initial;
+    mix-blend-mode: multiply;
+
+    font-size: large;
+
+    border: 0;
+
+    transition: background-color 0.1s ease;
+}
+#tabs-pad .tab .title:hover, #tabs-pad .action .title:hover {
+    background-color: var(--button-hover-color);
+}
+#tabs-pad .action .title.button:active, #tabs-pad .tab .title:active {
+    background-color: var(--button-active-color);
+}
+
+
+#tabs-pad .action.convertible:hover .title {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#tabs-pad .action .content{
+    padding: 0 var(--block-padding);
+    opacity: 0;
+    height: 0;
+    border-top: var(--border);
+
+    transition: all var(--block-open-duration);
+}
+#tabs-pad .action:hover .content, #tabs-pad .action.selected .content{
+    padding: var(--block-padding) var(--block-padding);
+    opacity: 1;
+    height: calc(100% - var(--block-padding)*2);
+}
+
+#tabs-pad .action .content *{
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    height: 0;
+
+    transition: all var(--block-open-duration) ease;
+}
+#tabs-pad .action:hover .content *, #tabs-pad .action.selected .content *{
+    opacity: 1;
+    height: 30px;
+}
+
+#tabs-pad .action .content .input-label {
+    white-space: nowrap;
+}
+
+#tabs-pad .action .content .name-field {
+    width: 100%;
+    font-size: large;
+    margin-bottom: 10px;
+    border: var(--border);
+    border-radius: var(--border-radius);
+}
+
+#tabs-pad .action .content .button {
+    font-size: large;
+    text-align: center;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: var(--border-radius);
+}
+
+#tabs-pad .action .content .submit {
+    width: 100%;
+    color: green;
+}
+
+#tabs-pad .action .content .notation {
+    font-size: large;
+    color: var(--notation-text-color);
+}
+
+#tabs-pad-opener {
+    z-index: 1;
+    user-select: none;
+    cursor: pointer;
+
+    margin-left: 10px;
+    padding: 0 5px;
+    height: auto;
+    align-self: center;
+
+    color: darkgrey;
+    font-size: xx-large;
+
+    text-shadow: var(--shadow);
+
+    transition: transform var(--tabs-pad-open-duration);
+}
+#tabs-pad-opener:hover {
+    color: dimgrey;
+}
+#tabs-pad-opener.rotate {
+    transform: rotateY(0.5turn) translateX(var(--collapsed-tabs-pad-width));
+}

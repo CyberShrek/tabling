@@ -1,0 +1,35 @@
+#columns-display {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+
+#columns-display row{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    border-bottom: var(--border);
+}
+
+#columns-display arrow{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+#columns-display arrow arrow-top{
+    height: 50%;
+    width: 0;
+    border-right: 3px solid lightgrey;
+    transform: rotate(-20grad) scaleY(1.057);
+    transform-origin: top;
+}
+#columns-display arrow arrow-bottom{
+    height: 50%;
+    width: 0;
+    border-right: 3px solid lightgrey;
+    transform: rotate(20grad) scaleY(1.057);
+    transform-origin: bottom;
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" th:href="@{/css/root.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/main.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/catalog-pad/catalog-pad.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/tabs/tabs.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/tabs/doc-creator.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/tabs/sql-creator.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/display/pop-up.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/display/displays.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/display/columns-display.css}"/>
+    <link rel="stylesheet" th:href="@{/css/menu/display/bindings-display.css}"/>
+    <script th:src="@{/js/external-libs/anseki-leader-line-6c51d10/leader-line.min.js}"></script>
+    <script th:src="@{/js/menu/catalog-pad.js}"></script>
+    <script th:src="@{/js/menu/selects.js}"></script>
+    <script th:src="@{/js/menu/display/display.js}"></script>
+    <script th:src="@{/js/menu/display/columns-display.js}"></script>
+    <script th:src="@{/js/menu/display/bindings-display.js}"></script>
+    <script th:src="@{/js/menu/display/arrows.js}"></script>
+    <script th:src="@{/js/menu/doc-creator.js}"></script>
+    <script th:src="@{/js/menu/sql-creator.js}"></script>
+    <script th:src="@{/js/menu/tabs.js}"></script>
+    <meta charset="UTF-8">
+    <title>Tabling</title>
+</head>
+<body>
+
+<div id="displays">
+    <div class="void"></div>
+    <div class="display" id="columns-display">
+        <header>
+            <label>Входящие</label>
+            <arrow><arrow-top></arrow-top><arrow-bottom></arrow-bottom></arrow>
+            <label>Выбраны</label>
+            <arrow><arrow-top></arrow-top><arrow-bottom></arrow-bottom></arrow>
+            <label>Выходящие</label>
+        </header>
+        <div class="notation">
+            Таблицы не выбраны
+            <input type="button"
+                   class="button"
+                   value="показать все"
+                   onclick="selectedTables = getAllTables(); showColumnsDisplay(); updateColumnsDisplay()"
+            >
+        </div>
+        <th:block th:each="schema : ${tabling.getSchemasSet()}">
+            <th:block th:each="table : ${tabling.getTablesBySchemaSet(schema)}">
+                <row>
+                    <inners></inners>
+                    <selected>
+                        <div class="table-block" th:id="${schema}+'.'+${table} + '|-in-columns'">
+                            <div class="button"
+                                 th:onclick="showTableStructure([[${schema}]],[[${table}]])"
+                                 th:text="${schema}+'.'+${table}"
+                            ></div>
+                            <foreign-tables hidden th:text="${tabling.getForeignTables(schema, table)}"></foreign-tables>
+                        </div>
+                    </selected>
+                    <outers></outers>
+                </row>
+            </th:block>
+        </th:block>
+    </div>
+
+    <div class="display" id="bindings-display">
+        <div class="notation">
+            Таблицы не выбраны
+            <input type="button"
+                   class="button"
+                   value="показать все"
+                   onclick="selectedTables = getAllTables(); showBindingsDisplay(); updateBindingsDisplay()"
+            >
+        </div>
+        <th:block th:each="schema : ${tabling.getSchemasSet()}">
+            <div class="tables-set">
+                <header th:text="${schema}"></header>
+                <th:block th:each="table : ${tabling.getTablesBySchemaSet(schema)}">
+                    <div class="table-block" th:id="${schema}+'.'+${table} + '|-in-bindings'">
+                        <div class="button"
+                             th:onclick="showTableStructure([[${schema}]],[[${table}]])"
+                             th:text="${table}"
+                        ></div>
+                        <foreign-tables hidden th:text="${tabling.getForeignTables(schema, table)}"></foreign-tables>
+                    </div>
+                </th:block>
+            </div>
+        </th:block>
+    </div>
+</div>
+
+<fixed-layer>
+    <div id="catalog-pad">
+        <header>
+            КАТАЛОГ
+        </header>
+        <div class="manage-panel">
+            <!-- Фильтр по именам таблиц -->
+            <div class="filter-field" title="Фильтр имён вида schema.table или schema. или .table">
+                <label>
+                    <input type="text"
+                           id="filter-text"
+                           placeholder="Фильтр schema.table"
+                           onkeyup="filtrate(this.value)"
+                    >
+                    <input type="reset"
+                           class="button"
+                           value="✖"
+                           onclick="filtrate('');
+                           document.getElementById('filter-text').value = null"
+                    >
+                </label>
+            </div>
+            <div class="reset-all">
+                <input type="reset"
+                       value="Сбросить всё"
+                       class="button"
+                       onclick="resetMenu();
+                        filtrate('');
+                        document.getElementById('filter-text').value = null;
+                        updateSelectedTables()"
+                >
+            </div>
+            <script>
+                // Опустошение строки после загрузки
+                document.getElementById('filter-text').value = null
+            </script>
+        </div>
+
+        <div class="menus scroller">
+            <!--Этот цикл динамически создаёт меню для выбора схем и таблиц-->
+            <th:block th:each="schema : ${tabling.getSchemasSet()}">
+                <form class="menu" th:id="${schema}">
+                    <div class="title" th:title="'Схема '+${schema}" th:onclick="collapseMenu([[${schema}]])">
+                        <label>
+                            <input type="checkbox"
+                                   class="marker"
+                                   onclick="markAll(this.form.id);
+                                   updateSelectedTables(); event.stopPropagation()"
+                            >
+                        </label>
+                        <label class="text">
+                            [[${schema}]]
+                        </label>
+                    </div>
+                    <div class="drop-down">
+                        <th:block th:each="table : ${tabling.getTablesBySchemaSet(schema)}">
+                            <div class="unit" th:id="${schema}+'.'+${table}">
+                                <label>
+                                    <input type="checkbox"
+                                           onclick="handleCheckboxes(this.form.id);
+                                           updateSelectedTables()"
+                                    >
+                                    [[${table}]]
+                                </label>
+                                <procedure-tables hidden th:text="${tabling.getProcedureNames(schema, table)}"></procedure-tables>
+                            </div>
+                        </th:block>
+                    </div>
+                </form>
+                <script th:inline="javascript">
+                    // Сразу после загрузки формы меняет значения тайтла, если в кэше уже были выбраны один или более пунктов меню
+                    handleCheckboxes([[${schema}]])
+                </script>
+            </th:block>
+        </div>
+    </div>
+
+    <div id="tabs-pad">
+
+        <div class="tabs">
+            <div class="tab" id="tab-for-columns-display">
+                <input type="button" class="title"
+                       title="Взаимосвязь таблиц"
+                       value="Взаимосвязь таблиц"
+                       onclick="selectDisplayViaTab(document.getElementById('tab-for-columns-display'))"
+                >
+            </div>
+
+            <div class="tab" id="tab-for-binding-display">
+                <input type="button" class="title"
+                       title="Схема увязки таблиц"
+                       value="Схема увязки таблиц"
+                       onclick="selectDisplayViaTab(document.getElementById('tab-for-binding-display'))"
+                >
+            </div>
+        </div>
+
+        <form class="action convertible" id="doc-creator" method="post" th:action="@{/document/build}" th:object="${params}">
+            <div>
+                <input type="button" class="title"
+                       value="Создание документа"
+                >
+            </div>
+            <div class="content">
+                <input type="hidden"
+                       id="selected-tables"
+                       th:field="*{tables}"
+                >
+                <div>
+                    <input type="text"
+                           class="name-field"
+                           placeholder="Имя документа"
+                           autocomplete="false"
+                           th:field="*{fileName}"
+                    >
+                </div>
+                <div class="notation">
+                    Документ содержит обновляемые поля, поэтому сразу после открытия документа
+                    необходимо эти поля обновить:
+                    <br>1) Нажать клавиши CTRL+A;
+                    <br>2) Затем нажать клавишу F9
+                </div>
+                <div>
+                    <input type="submit" class="submit button"
+                           value="Сгенерировать"
+                    >
+                    <div class="edit button"
+                         title="Изменить шаблон"
+                         onclick="editDocTemplate()">
+                        ✎
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <form class="action convertible" id="sql-creator">
+            <div>
+                <input type="button" class="title"
+                       value="Создание скриптов">
+                <div class="content">
+                    <div class="procedures">
+                        <label class="notation">Процедуры не найдены</label>
+                    </div>
+                    <div>
+                        <label class="input-label">
+                            Начало периода: </label>
+                        <input type="date"
+                               name="from"
+                               class="date-field">
+                    </div>
+                    <div>
+                        <label class="input-label">
+                            Конец периода: </label>
+                        <input type="date"
+                               name="to"
+                               class="date-field">
+                    </div>
+                    <div>
+                        <input type="button"
+                               class="submit button"
+                               value="Сгенерировать"
+                               onclick="generateSqlUsingForm(this.form)">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="action">
+            <a href="/xlsx-catalog">
+                <input type="button" class="title button" value="Реестр ПО КОДУПП">
+            </a>
+        </div>
+    </div>
+    <div id="tabs-pad-opener"
+         title="скрыть/показать меню">
+        ❰
+    </div>
+    <script>
+        document.getElementById("tabs-pad-opener").addEventListener("click", () => {
+            document.getElementById("tabs-pad-opener").classList.toggle("rotate")
+                collapseTabsPad(tabsPadEl)
+            })
+    </script>
+</fixed-layer>
+
+<div id="pop-up">
+    <div class="background" onclick="closePopUp()"></div>
+    <div class="loading-indicator">загружаю</div>
+    <div id="scroll-overflow">
+        <table id="table-structure">
+            <tr>
+                <td class="head table-name" colspan="3"></td>
+            </tr>
+            <tr>
+                <td class="head comment" style="white-space: nowrap">Column name</td>
+                <td class="head name">Code</td>
+                <td class="head dataType">Type</td>
+            </tr>
+        </table>
+    </div>
+    <div id="template-editor">
+        <label>
+            Проверьте шаблон документа в загрузках и редактируйте его с помощью редактора Word
+            <br>
+            После применения всех изменений и сохранения перетащите сюда отредактированный шаблон
+        </label>
+    </div>
+
+</div>
+</body>
+<script>
+    const tabsPadEl = document.getElementById("tabs-pad")
+    const displaysEl = document.getElementById("displays")
+    const columnsDisplayEl = document.getElementById("columns-display")
+    const bindingsDisplayEl = document.getElementById("bindings-display")
+    const popUpEl = document.getElementById("pop-up")
+    const tableStructureEl = document.getElementById("table-structure")
+    const templateEditorEl = document.getElementById("template-editor")
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === "Escape")
+            closePopUp();
+    })
+
+    // Добавление лисенеров фокуса элементам tabs-pad
+    tabsPadEl.querySelectorAll(".action").forEach(action => {
+        action.querySelectorAll("input").forEach(input => {
+            input.addEventListener("focusin", () => action.classList.add("selected"))
+            input.addEventListener("focusout", () => action.classList.remove("selected"))
+        })
+    })
+</script>
+
+</html>

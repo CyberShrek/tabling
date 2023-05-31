@@ -1,0 +1,205 @@
+:root {
+    --menus-pad-width: 360px;
+    --manage-panel-height: calc(var(--header-height) + var(--border-width)*2);
+    --search-text-field-width: 260px;
+
+    --menu-open-duration: 0.1s;
+}
+
+#catalog-pad {
+    z-index: 2;
+    width: var(--menus-pad-width);
+    background-color: var(--main-color);
+    border-right: var(--border);
+    box-shadow: var(--shadow);
+}
+
+#catalog-pad header{
+    user-select: none;
+}
+
+#catalog-pad .manage-panel {
+    display: flex;
+    height: var(--manage-panel-height);
+    justify-content: space-between;
+    padding: 0 5px;
+    align-items: center;
+    background-color: var(--second-color);
+    border: 0;
+    border-bottom: var(--border);
+}
+
+#catalog-pad .manage-panel .filter-field {
+    background-color: white;
+    white-space: nowrap;
+    border-radius: var(--border-radius);
+    border: 0;
+}
+#catalog-pad .manage-panel .filter-field:focus-within {
+    outline: 2px solid var(--selects-color);
+}
+
+#catalog-pad .manage-panel .filter-field input[type="text"]{
+    width: calc(100% - 35px);
+    padding: 3px;
+    font-size: large;
+    border-radius: var(--border-radius);
+    border: 0;
+}:focus {
+     outline: none;
+ }
+
+#catalog-pad .manage-panel .filter-field input[type="reset"]{
+    z-index: 2;
+    background-color: initial;
+    font-size: large;
+    border: 0;
+}
+#catalog-pad .manage-panel .filter-field input[type="reset"]:hover{
+    color: indianred;
+}
+
+#catalog-pad .manage-panel .reset-all{
+    margin-left: 5px;
+    flex-grow: 1;
+}
+
+#catalog-pad .manage-panel .reset-all .button{
+    float: right;
+    position: center;
+    padding: 3px;
+    font-size: large;
+    color: indianred;
+}
+
+#catalog-pad .scroller {
+    height: calc(100vh - var(--header-height)*2 - var(--border-width)*3);
+}
+
+/* Элементы взаимодействия: */
+
+.menu .title {
+    z-index: 1;
+    user-select: none;
+    display: flex;
+    padding: 0 0 0 5px;
+
+    text-align: left;
+    font-weight: bold;
+    font-size: large;
+
+    background-color: initial;
+}
+.menu .title:hover {
+    background-color: var(--button-hover-color);
+    mix-blend-mode: multiply;
+}
+.menu .title:active {
+    background-color: var(--button-active-color);
+    mix-blend-mode: multiply;
+}
+/*Может принимать второй цвет, сигнализизирущий о том, что выбраны один или более пунктов меню*/
+.menu.selected .title {
+    background-color: var(--selects-color);
+}
+
+.menu .title .marker {
+    cursor: pointer;
+    transform: scale(1.4);
+    vertical-align: middle;
+}
+
+.menu .title .text {
+    display: flex;
+    vertical-align: middle;
+    cursor: pointer;
+    padding-left: 5px;
+}
+
+/*!*!* Индикатор открытия меню: *!*!*/
+.menu      .title .text::before {
+    padding-right: 5px;
+    color: dimgrey;
+    content: '⬗';
+}
+.menu.open .title .text::before {
+    /*transform: rotate(100grad);*/
+    /*color: lightgrey;*/
+    content: '⬙';
+}
+
+/* Внутри меню: */
+
+.menu      .drop-down {
+    display: none;
+}
+.menu.open .drop-down {
+    display: block;
+    width: 20px;
+    height: auto;
+
+    margin: 0 0 5px 31.5px;
+    padding: 0 0 3px 3px;
+
+    border-bottom-left-radius: var(--border-radius);
+    border-left: var(--border);
+    border-bottom:  var(--border);
+
+    animation-name: animate-open-menu;
+    animation-duration: 0.2s;
+}   @keyframes animate-open-menu {
+         from {
+             margin-bottom: 0;
+             max-height: 0;
+         }
+         to{
+             margin-bottom: 5px;
+             max-height: 100vh;
+         }
+     }
+
+.menu .unit {
+    user-select: none;
+    height: 0;
+    opacity: 0;
+}
+
+.menu.open .unit {
+    animation-name: animate-open-unit;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}   @keyframes animate-open-unit {
+         from {
+             height: 0;
+             opacity: 0;
+         }
+         to{
+             height: 20px;
+             opacity: 1;
+         }
+    }
+
+.menu.close .unit {
+    animation-name: animate-close-unit;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+}   @keyframes animate-close-unit {
+         from {
+             height: 20px;
+             opacity: 0.5;
+         }
+         to{
+             height: 0;
+             opacity: 0;
+         }
+     }
+
+.menu .unit input, .menu .unit label{
+    display: flex;
+    flex-direction: row;
+    vertical-align: middle;
+    align-items: flex-end;
+    cursor: pointer;
+    font-size: large;
+}

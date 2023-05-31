@@ -1,0 +1,97 @@
+:root {
+    --main-table-block-color: lavender;
+    --second-table-block-color: beige;
+}
+
+#displays {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    justify-self: end;
+}
+
+#displays #common-tables {
+    width: 100%;
+}
+
+#displays .void{
+    flex-shrink: 0;
+    max-width: calc(var(--menus-pad-width) + var(--tabs-pad-width) + var(--border-width));
+    width: 100%;
+    transition: max-width var(--tabs-pad-open-duration);
+}
+#displays.expand .void{
+    max-width: calc(var(--menus-pad-width) + var(--collapsed-tabs-pad-width) + var(--border-width));
+}
+
+#displays .display {
+    display: none;
+}
+
+#displays .display.visible {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+#displays .display header{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    background-color: var(--second-color);
+}
+
+#displays .display .table-block{
+    display: block;
+    flex-shrink: 0;
+
+    height: 25px;
+    max-width: 500px;
+
+    margin: 16px 20px;
+    user-select: none;
+
+    background-color: var(--main-table-block-color);
+
+    border: var(--border);
+    border-radius: var(--border-radius);
+}
+
+#displays .display .table-block.highlight{
+    box-shadow: 0 0 15px greenyellow;
+}
+
+#displays .display .table-block .button{
+    padding: 5px;
+    text-align: start;
+    font-size: small;
+
+    border-radius: calc(var(--border-radius) - var(--border-width));
+}
+
+#displays .notation{
+    display: none;
+}
+#displays .notation.visible{
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    justify-content: center;
+    margin: auto;
+    font-size: xx-large;
+    color: var(--notation-text-color);
+}
+#displays .notation .button{
+    font-size: large;
+    color: grey;
+    transition: 0.2s;
+}
+#displays .notation .button:hover{
+    background: darkgrey;
+    color: white;
+}
+#displays .notation .button:active{
+    background: var(--selects-color);
+    color: white;
+}

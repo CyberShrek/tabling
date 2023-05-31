@@ -1,0 +1,70 @@
+body {
+    display: grid;
+    margin: 0;
+    font-family: Calibri, serif;
+    overflow-x: hidden;
+    overflow-Y: scroll;
+}
+
+fixed-layer{
+    display: flex;
+    z-index: 2;
+    position: fixed;
+    pointer-events: none;
+}
+
+fixed-layer *{
+    pointer-events: auto;
+}
+
+header {
+    user-select: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: var(--header-height);
+    font-size: x-large;
+    white-space: nowrap;
+    border-bottom: var(--border);
+}
+
+header me {
+    position:absolute;
+    right: 10px;
+    font-size: medium;
+}
+header me:before {
+    content: 'author ';
+}
+
+.scroller {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+
+.button {
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: Arial, serif;
+    font-weight: bold;
+    mix-blend-mode: multiply;
+    border: 0;
+    border-radius: var(--border-radius);
+
+    transition: background-color 0.1s;
+}
+
+.button:hover {
+    background-color: var(--button-hover-color);
+}
+.button:active {
+    background-color: var(--button-active-color);
+}
+
+input[type="checkbox"] {
+    cursor: pointer;
+}

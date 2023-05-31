@@ -1,0 +1,15 @@
+#doc-creator .content .notation {
+    height: 0;
+}
+
+#doc-creator:hover .content .notation, #doc-creator.selected .content .notation{
+    height: 160px;
+}
+
+#doc-creator .content .edit {
+    width: 20px;
+    max-height: 20px;
+    align-self: center;
+    margin: 5px 0 0 5px;
+    color: olive;
+}

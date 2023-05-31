@@ -1,0 +1,18 @@
+:root {
+    --header-height: 35px;
+
+    --main-color: aliceblue;
+    --main-xlsx-color: floralwhite;
+    --second-color: whitesmoke;
+    --selects-color: lightskyblue;
+    --selects-xlsx-color: darkseagreen;
+    --button-hover-color: gainsboro;
+    --button-active-color: lightgrey;
+    --notation-text-color: darkkhaki;
+
+    --border-width: 1px;
+    --border-radius: 4px;
+    --border: var(--border-width) solid lightgrey;
+
+    --shadow: 0 2px 5px darkgrey;
+}
