@@ -2,16 +2,19 @@ package org.vniizt.tabling.service
 
 import org.springframework.stereotype.Service
 import org.vniizt.tabling.entity.RelatedTables
+import java.io.File
 
 @Service
 class RelatedTablesResolver {
 
-    fun findRelatedTables(procedureText: String) = ArrayList<RelatedTables>().also {
+
+    fun findRelatedTables(procedureText: String) = HashSet<RelatedTables>().also {
 //        println(
 //            procedureText
 //                .eraseComments()
 //        )
     }
+
 
     fun prepareForAnalysis(text: String) = text
         .erase(regexes.sql.simpleComment)
@@ -29,7 +32,6 @@ class RelatedTablesResolver {
         val whitespace = Regex("\\s+")
         val semicolon = Regex("\\s*;\\s*")
     }
-
 
     private fun String.erase(regex: Regex) = replace(regex, "")
 
