@@ -1,0 +1,2 @@
+schema_.table_b -> schema_.table_a
+schema_.table_c -> schema_.table_a

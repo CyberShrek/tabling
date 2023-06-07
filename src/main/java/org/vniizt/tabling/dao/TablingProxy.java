@@ -3,12 +3,10 @@ package org.vniizt.tabling.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import org.vniizt.tabling.entity.RelatedTables;
 import org.vniizt.tabling.entity.TableStructure;
-import org.vniizt.tabling.entity.TableStructureRow;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Alexander Ilyin
@@ -103,5 +101,15 @@ public class TablingProxy implements Tabling{
         while (!Objects.equals(rowSet.getString("table_schema"), schema) && rowSet.next())
             if (rowSet.isLast()) // кольцо
                 rowSet.first();
+    }
+
+    public List<RelatedTables> getBindings() {
+        List<RelatedTables> bindings = new ArrayList<>();
+
+        SqlRowSet proceduresRowSet = jdbc.getProcedures();
+        while (proceduresRowSet.next())
+            bindings.add(new RelatedTables(proceduresRowSet.getString(1), "-"));
+
+        return bindings;
     }
 }

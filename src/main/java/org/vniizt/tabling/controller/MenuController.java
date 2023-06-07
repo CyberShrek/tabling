@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.vniizt.tabling.dao.TablingNew;
 import org.vniizt.tabling.dao.TablingProxy;
+import org.vniizt.tabling.entity.RelatedTables;
 import org.vniizt.tabling.entity.TableStructure;
-import org.vniizt.tabling.entity.TableStructureRow;
 import org.vniizt.tabling.entity.DocumentParams;
 
-import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Alexander Ilyin
@@ -25,6 +27,9 @@ import java.util.HashSet;
 public class MenuController {
     @Autowired
     private TablingProxy tabling;
+
+    @Autowired
+    private TablingNew tablingNew;
 
     // Получение списков схем и таблиц, а также клиентских моделей таблиц
     @GetMapping
@@ -42,6 +47,13 @@ public class MenuController {
     public TableStructure getTableStructure(@RequestHeader String schemaName,
                                             @RequestHeader String tableName){
         return tabling.getTableStructure(schemaName, tableName);
+    }
+
+    // Получение связей таблиц
+    @GetMapping(value = "/table-bindings", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, List<RelatedTables>> getTableBindings(){
+        return tablingNew.getProcedureRelatedTables();
     }
 }
 

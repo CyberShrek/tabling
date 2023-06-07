@@ -9,6 +9,7 @@ import org.vniizt.tabling.entity.TableStructure;
 import org.vniizt.tabling.entity.TableStructureRow;
 import org.vniizt.tabling.service.docx.TablesInfo;
 
+import javax.sql.RowSet;
 import java.sql.Connection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -55,6 +56,11 @@ public class TablingJdbc implements Tabling {
                         "    LEFT JOIN filling_procedures p ON (p.main_table = t.table_schema || '.' || t.table_name)\n" +
                         "\n" +
                         "ORDER BY table_schema, table_name");
+    }
+
+
+    public SqlRowSet getProcedures(){
+        return template.queryForRowSet("SELECT DISTINCT * FROM magic.get_procedures()");
     }
 
     // Остальные методы-запросы подразумевается использовать исключительно для тестирования корректности работы прокси
