@@ -17,6 +17,7 @@ import org.vniizt.tabling.entity.DocumentParams;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Alexander Ilyin
@@ -52,7 +53,7 @@ public class MenuController {
     // Получение связей таблиц
     @GetMapping(value = "/table-bindings", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, List<RelatedTables>> getTableBindings(){
+    public Map<String, Set<RelatedTables>> getTableBindings(){
         return tablingNew.getProcedureRelatedTables();
     }
 }

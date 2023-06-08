@@ -9,7 +9,7 @@ import org.vniizt.tabling.service.RelatedTablesResolver
 class TablingNew(private var jdbc: JdbcTemplate,
                  private val resolver: RelatedTablesResolver) {
 
-    fun getProcedureRelatedTables() = HashMap<String, List<RelatedTables>>().apply {
+    fun getProcedureRelatedTables() = HashMap<String, Set<RelatedTables>>().apply {
         with(jdbc.queryForRowSet(
             "SELECT DISTINCT * FROM magic.get_procedures()"
         )) {

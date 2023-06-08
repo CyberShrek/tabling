@@ -70,7 +70,7 @@ class RelatedTablesResolverTest {
                 |changed text:
                 |'${it.value}'
             """.trimMargin())
-            with(resolver.prepareForAnalysis(it.key).joinToString("\n")){
+            with(resolver.prepareForAnalysis(it.key)){
                 if(it.value != this) {
                     fail("expected changed text:\n$this")
                 }
