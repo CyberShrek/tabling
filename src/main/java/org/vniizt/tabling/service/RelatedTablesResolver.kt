@@ -36,4 +36,5 @@ class RelatedTablesResolver {
     }
 
     private fun String.erase(regex: Regex) = replace(regex, "")
+
 }
