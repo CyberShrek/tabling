@@ -1,48 +1,53 @@
 package org.vniizt.tabling.entity
 
+import javax.management.Query
+
 data class SqlProcedure(val rawText: String){
 
 //        val variables: Set<Variable>
-
-    data class Variable(
-        val type: String,
-        val name: String
-    )
 
     interface Expression {
         val text: String
     }
 
-    data class QueryExpression(override val text: String): Expression{
+    class QueryExpression(override val text: String): Expression{
 
     }
 
-    data class IFExpression(override val text: String): Expression {
+    class IFExpression(override val text: String): Expression {
         val conditionText: String = ""
         val thenExpressions: List<Expression> = listOf()
         val elsifExpressions: List<ELSIFExpression> = listOf()
         val elseExpressions: List<Expression> = listOf()
 
-        data class ELSIFExpression(override val text: String): Expression{
+        class ELSIFExpression(override val text: String): Expression{
             val conditionText: String = ""
             val thenExpressions: List<Expression> = listOf()
         }
     }
 
-    data class CASEExpression(override val text: String): Expression{
+    class CASEExpression(override val text: String): Expression{
         val whenExpressions: List<WHENExpression> = listOf()
         val elseExpressions: List<Expression> = listOf()
 
-        data class WHENExpression(override val text: String): Expression{
+        class WHENExpression(override val text: String): Expression{
             val conditionText: String = ""
             val thenExpressions: List<Expression> = listOf()
         }
     }
 
-    data class LOOPExpression(override val text: String): Expression{
+    open class LOOPExpression(override val text: String): Expression{
         val conditionText: String = ""
         val thenExpressions: List<Expression> = listOf()
     }
 
-    data class OtherExpression(override val text: String): Expression
+    open class LOOPQUERYExpression(override val text: String): LOOPExpression(text){
+        val query: QueryExpression? = null
+    }
+
+    class RECORDLOOPExpression(override val text: String): LOOPQUERYExpression(text){
+        val recordVariable: String = ""
+    }
+
+    class OtherExpression(override val text: String): Expression
 }
