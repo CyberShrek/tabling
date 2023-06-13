@@ -2,6 +2,7 @@ package org.vniizt.tabling.service
 
 import org.junit.jupiter.api.Test
 import org.vniizt.tabling.entity.RelatedTables
+import org.vniizt.tabling.entity.SqlProcedure
 import java.io.File
 import kotlin.test.DefaultAsserter.fail
 
@@ -58,8 +59,6 @@ class RelatedTablesResolverTest {
         """.trimIndent() to "some text\nsome text"
     )
 
-    private val complexTestCases = mapOf("" to "")
-
     @Test
     fun prepareForAnalysisTest(){
         prepareForAnalysisCases.forEach {
@@ -102,6 +101,21 @@ class RelatedTablesResolverTest {
             catch (_: Exception){
                 break
             }
+        }
+    }
+
+    @Test
+    private fun testIFExpressions(){
+        try{
+            with(SqlProcedure.IFExpression("""
+                IF (a != b) THEN a := b; END IF
+            """.trimIndent())){
+                assert(conditionText == "(a != b)")
+//                assert()
+            }
+        }
+        catch (error: AssertionError){
+            fail(error.message)
         }
     }
 
