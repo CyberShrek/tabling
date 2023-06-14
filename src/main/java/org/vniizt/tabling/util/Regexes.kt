@@ -1,18 +1,20 @@
 package org.vniizt.tabling.util
 
-import org.vniizt.tabling.entity.RelatedTables
-
-
 
 object Regexes {
     val whitespace = Regex("\\s+")
-    val semicolon = Regex("\\s*;\\s*")
     object Sql {
         val simpleComment = Regex("--.*")
         val bracketedComment = Regex("/\\*.*\\*/")
         val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
+        val semicolonSeparator = Regex("\\s*;\\s*(?=(?:[^']*'[^']*')*[^']*\$)") // Also ignores semicolons inside of apostrophe pairs
+
+        // Procedure must be semicolon-separated to trimmed expressions. All spaces must be single.
         object Procedure{
-            val DECLAREField = Regex("(?i)\\s*DECLARE.+BEGIN\\s")
+            val DECLARE = Regex("(?i)^DECLARE\\s")
+            val assignmentOperator = Regex("\\s?(=|:=)\\s?")
+            val BEGIN = Regex("(?i)^BEGIN\\s")
+
             object IFExpression {
                 val IF = Regex("(?i)")
                 val THEN = Regex("(?i)")
