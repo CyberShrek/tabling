@@ -2,34 +2,33 @@ package org.vniizt.tabling.entity
 
 import org.vniizt.tabling.util.Regexes
 
-data class SqlProcedure(val procedureText: String){
+class SqlProcedure(procedureText: String){
 
     val variables: Map<String, Variable> = mutableMapOf()
 
     val expressions: List<Expression> = mutableListOf()
 
     init {
-        val lines = procedureText
+        val preparedProcedureText = procedureText // Preparing for analysis
             .erase(Regexes.Sql.simpleComment)
-            .replace(Regexes.whitespace, " ")
+            .erase("\n")
             .erase(Regexes.Sql.bracketedComment)
+            .replace(Regexes.whitespace, " ")
+            .replace(Regexes.Sql.semicolonSeparator, ";")
             .trim()
-            .split(Regexes.Sql.semicolonSeparator)
 
-        var lineId = 0
-
-        // Moving to BEGIN
-        while (Regexes.Sql.Procedure.BEGIN.find(lines[lineId]) == null){
-            // Looking for variables
-            with(Variable(
-                if(variables.isNotEmpty()) lines[lineId]
-                else lines[lineId].erase(Regexes.Sql.Procedure.DECLARE))){
-                (variables as MutableMap)[this.name] = this
+        // Writing variables
+        Regexes.Sql.Procedure.DECLAREBlock.content.find(preparedProcedureText)?.value
+            ?.split(';')?.forEach {
+                with(Variable(it)){
+                    (variables as MutableMap)[this.name] = this
+                }
             }
-            lineId++
-        }
+
+        Regexes.Sql.Procedure.BEGINBlock.content.find(preparedProcedureText)?.value
     }
 
+    private fun String.erase(value: String) = replace(value, "")
     private fun String.erase(regex: Regex) = replace(regex, "")
 
     class Variable(initText: String){
@@ -44,17 +43,23 @@ data class SqlProcedure(val procedureText: String){
         }
     }
 
-    interface Expression
+    open class Expression(
+//        val
+    )
+
+    class BEGINExpression(expressionText: String){
+
+    }
 
     open class ConditionalExpression(expressionText: String,
-                                     conditionRegex: Regex): Expression
+                                     conditionRegex: Regex): Expression()
     {
         val conditionText: String = conditionRegex.find(expressionText)?.value ?: ""
     }
 
     class IFExpression(expressionText: String): ConditionalExpression(
         expressionText,
-        Regexes.Sql.Procedure.IFExpression.IF
+        Regexes.Sql.Procedure.IFBlock.IF
     ) {
         val thenExpressions: List<Expression> = listOf()
         val elsifExpressions: List<ELSIFExpression> = listOf()
@@ -62,7 +67,7 @@ data class SqlProcedure(val procedureText: String){
 
         class ELSIFExpression(expressionText: String): ConditionalExpression(
             expressionText,
-            Regexes.Sql.Procedure.IFExpression.ELSEIF
+            Regexes.Sql.Procedure.IFBlock.ELSEIF
         ){
             val thenExpressions: List<Expression> = listOf()
         }
@@ -89,9 +94,9 @@ data class SqlProcedure(val procedureText: String){
 //        val recordVariable: String = ""
 //    }
 
-    open class OtherExpression(val text: String): Expression
-
-    class QueryExpression(text: String): OtherExpression(text){
-
-    }
+//    open class OtherExpression(val text: String): Expression
+//
+//    class QueryExpression(text: String): OtherExpression(text){
+//
+//    }
 }

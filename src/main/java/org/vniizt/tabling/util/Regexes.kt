@@ -9,18 +9,31 @@ object Regexes {
         val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
         val semicolonSeparator = Regex("\\s*;\\s*(?=(?:[^']*'[^']*')*[^']*\$)") // Also ignores semicolons inside of apostrophe pairs
 
-        // Procedure must be semicolon-separated to trimmed expressions. All spaces must be single.
+        // The number of spaces should be the minimum necessary for the PLSQL syntax, single-spaced, trimmed, without \n or \t
         object Procedure{
+
             val DECLARE = Regex("(?i)^DECLARE\\s")
             val assignmentOperator = Regex("\\s?(=|:=)\\s?")
             val BEGIN = Regex("(?i)^BEGIN\\s")
 
-            object IFExpression {
+            val DECLAREBlock = Block(
+                content = Regex("(?<=^DECLARE\\s)[\\s\\S]*?(?=\\sBEGIN)")
+            )
+
+            val BEGINBlock = Block(
+                content = Regex("(?<=BEGIN\\s)[\\s\\S]*?(?=\\sEND;)")
+            )
+
+            object IFBlock {
                 val IF = Regex("(?i)")
                 val THEN = Regex("(?i)")
                 val ELSEIF = Regex("(?i)")
                 val ELSE = Regex("(?i)")
             }
+
+            class Block(
+                val content: Regex
+            )
         }
     }
 }

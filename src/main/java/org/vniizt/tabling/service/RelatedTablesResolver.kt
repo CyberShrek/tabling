@@ -14,14 +14,6 @@ class RelatedTablesResolver {
 //        }
     }
 
-    fun prepareForAnalysis(procedureText: String) = procedureText
-        .erase(Regexes.Sql.simpleComment)
-        .replace(Regexes.whitespace, " ")
-        .erase(Regexes.Sql.bracketedComment)
-        .trim()
-        .replace(Regexes.semicolon, "\n")
-
-
     private fun String.findUPDATEExpression() {
 
     }
