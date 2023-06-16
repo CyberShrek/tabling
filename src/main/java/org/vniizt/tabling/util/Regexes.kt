@@ -12,7 +12,6 @@ object Regexes {
         // The number of spaces should be the minimum necessary for the PLSQL syntax, single-spaced, trimmed, without \n or \t
         object Procedure{
 
-            val DECLARE = Regex("(?i)^DECLARE\\s")
             val assignmentOperator = Regex("\\s?(=|:=)\\s?")
             val BEGIN = Regex("(?i)^BEGIN\\s")
 
