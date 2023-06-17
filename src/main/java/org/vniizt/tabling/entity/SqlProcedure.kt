@@ -13,19 +13,38 @@ class SqlProcedure(private var procedureText: String){
             .trim()
     }
 
-    val variables: Map<String, Variable> = mutableMapOf()
+    val variables: Map<String, Variable> = mutableMapOf<String, Variable>().apply {
+        DECLAREBody.find(procedureText)?.value
+            ?.split(';')
+            ?.forEach {
+                with(Variable(it)){
+                    this@apply[this.name] = this
+                }
+            }
+    }
 
-    val expressions: List<Expression> = mutableListOf()
+    val expressions: List<Expression> = mutableListOf<Expression>().apply {
+        BEGINBody.find(
+            procedureText
+
+        )
+    }
 
     private companion object Regexes {
+
         val whitespace = Regex("\\s+")
         val simpleComment = Regex("--.*")
         val bracketedComment = Regex("/\\*.*\\*/")
-        val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
         val semicolonSeparator = Regex("\\s*;\\s*$ignoreQuotesPattern")
         val assignmentOperator = Regex("\\s?(=|:=)\\s?")
+
         val DECLAREBody = Regex("(?<=^DECLARE\\s)[\\s\\S]*?(?=\\sBEGIN)")
         val BEGINBody   = Regex("(?<=BEGIN\\s)[\\s\\S]*?(?=\\sEND;$)")
+
+        val blockStartOperators = Regex("(?i)")
+        val blockEndOperators = Regex("(?i)")
+
+        val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
 
         object IFBlock {
             val IF = Regex("(?i)")
@@ -49,44 +68,6 @@ class SqlProcedure(private var procedureText: String){
             get() = "(?=(?:[^']*'[^']*')*[^']*\$)"
     }
 
-    init {
-        val preparedProcedureText = procedureText
-            // Preparing for analysis
-            .erase(Regexes.simpleComment)
-            .erase("\n")
-            .erase(Regexes.bracketedComment)
-            .replace(Regexes.whitespace, " ")
-            .replace(Regexes.semicolonSeparator, ";")
-            .trim()
-            .also {
-                // Writing variables
-                DECLAREBody.find(it)?.value
-                    ?.split(';')
-                    ?.forEach {
-                        with(Variable(it)){
-                            (variables as MutableMap)[this.name] = this
-                        }
-                    }
-
-                // Writing expressions
-                BEGINBody.find(it)?.value
-            }
-            // Transforming start-end operators to braces for easier and faster procedure scalping
-            .replace("", "")
-
-        // Writing variables
-        Regexes.DECLAREBody.find(preparedProcedureText)?.value
-            ?.split(';')?.forEach {
-                with(Variable(it)){
-                    (variables as MutableMap)[this.name] = this
-                }
-            }
-        Regexes.BEGINBody.find(preparedProcedureText)?.value
-    }
-
-    private fun transformProcedureToXml(){
-
-    }
 
     private fun String.erase(value: String) = replace(value, "")
     private fun String.erase(regex: Regex) = replace(regex, "")
