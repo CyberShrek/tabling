@@ -2,6 +2,8 @@ package org.vniizt.tabling.entity
 
 class SqlProcedure(private var procedureText: String){
 
+    val quotedStrings: List<String> = mutableListOf()
+
     init {
         // Preparing for analysis
         procedureText = procedureText
@@ -11,17 +13,18 @@ class SqlProcedure(private var procedureText: String){
             .replace(whitespace, " ")
             .replace(semicolonSeparator, ";")
             .trim()
+
     }
 
-    val variables: Map<String, Variable> = mutableMapOf<String, Variable>().apply {
-        DECLAREBody.find(procedureText)?.value
-            ?.split(';')
-            ?.forEach {
-                with(Variable(it)){
-                    this@apply[this.name] = this
-                }
+    val quotedStrings: List<String> =
+        quotedText.findAll(procedureText)
+            .map {
+                it.value.erase(unescapedQuote)
             }
-    }
+            .toList()
+            .also {
+//                procedureText = procedureText.replace(quotedText){}
+            }
 
     val expressions: List<Expression> = mutableListOf<Expression>().apply {
         BEGINBody.find(
@@ -38,11 +41,15 @@ class SqlProcedure(private var procedureText: String){
         val semicolonSeparator = Regex("\\s*;\\s*$ignoreQuotesPattern")
         val assignmentOperator = Regex("\\s?(=|:=)\\s?")
 
-        val DECLAREBody = Regex("(?<=^DECLARE\\s)[\\s\\S]*?(?=\\sBEGIN)")
         val BEGINBody   = Regex("(?<=BEGIN\\s)[\\s\\S]*?(?=\\sEND;$)")
 
         val blockStartOperators = Regex("(?i)")
         val blockEndOperators = Regex("(?i)")
+
+        val quotedText = Regex("'(?:''|[^'])*'")
+        val unescapedQuote = Regex("'(?!')")
+
+        val basicRow = Regex("(?<=;|^).*?(?=;)")
 
         val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
 
@@ -71,18 +78,6 @@ class SqlProcedure(private var procedureText: String){
 
     private fun String.erase(value: String) = replace(value, "")
     private fun String.erase(regex: Regex) = replace(regex, "")
-
-    class Variable(initText: String){
-        val name = initText.substringBefore(" ")
-        val type: String
-        val value: String?
-        init {
-            with(initText.substringAfter(" ").split(assignmentOperator)){
-                type = get(0)
-                value = getOrNull(1)
-            }
-        }
-    }
 
     open class Expression(
 //        val

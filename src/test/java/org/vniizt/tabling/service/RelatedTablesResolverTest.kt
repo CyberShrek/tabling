@@ -38,7 +38,23 @@ class RelatedTablesResolverTest {
 //    }
 
     @Test
-    private fun testIFExpressions(){
+    fun play(): Unit {
+        val str = "some text -|- -|- -|- -|- -|- some text"
+        var count = 0
+        val result = str.replace(Regex("-\\|-") ) { it.value+(count++).toString() }
+        println(result)
+
+        val str1 = "inter''val '  1   da'' ''y   ''1 da   '   'ddcd' ' ''y   ' rfreferrerggrgrg"
+        //unescaped quote
+        Regex("'(?:''|[^'])*'").findAll(str1).map { it.value.replace(Regex("'(?!')"), "") }.forEach {
+            println(it)
+        }
+
+
+    }
+
+//    @Test
+    fun testIFExpressions(){
         try{
             with(SqlProcedure.IFExpression("""
                 |IF (a != b) THEN a := b; END IF
