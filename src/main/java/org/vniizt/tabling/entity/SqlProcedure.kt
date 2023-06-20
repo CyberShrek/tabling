@@ -2,29 +2,27 @@ package org.vniizt.tabling.entity
 
 class SqlProcedure(private var procedureText: String){
 
-    val quotedStrings: List<String> = mutableListOf()
-
     init {
         // Preparing for analysis
         procedureText = procedureText
             .erase(simpleComment)
             .erase("\n")
             .erase(bracketedComment)
+            .trim()
             .replace(whitespace, " ")
             .replace(semicolonSeparator, ";")
-            .trim()
-
     }
 
-    val quotedStrings: List<String> =
-        quotedText.findAll(procedureText)
-            .map {
-                it.value.erase(unescapedQuote)
+    // Collecting quoted strings and replacing them with their own indices in the text
+    val quotedStrings: List<String> = run {
+        var quotedStringIndex = 0
+        mutableListOf<String>().apply {
+            procedureText = procedureText.replace(quotedText){
+                this.add(it.value.erase(unescapedQuote))
+                "'${quotedStringIndex++}'"
             }
-            .toList()
-            .also {
-//                procedureText = procedureText.replace(quotedText){}
-            }
+        }
+    }
 
     val expressions: List<Expression> = mutableListOf<Expression>().apply {
         BEGINBody.find(
@@ -43,36 +41,17 @@ class SqlProcedure(private var procedureText: String){
 
         val BEGINBody   = Regex("(?<=BEGIN\\s)[\\s\\S]*?(?=\\sEND;$)")
 
-        val blockStartOperators = Regex("(?i)")
-        val blockEndOperators = Regex("(?i)")
-
         val quotedText = Regex("'(?:''|[^'])*'")
         val unescapedQuote = Regex("'(?!')")
 
-        val basicRow = Regex("(?<=;|^).*?(?=;)")
-
         val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
 
-        object IFBlock {
-            val IF = Regex("(?i)")
-            val THEN = Regex("(?i)")
-            val ELSEIF = Regex("(?i)")
-            val ELSE = Regex("(?i)")
-        }
-
-        object LOOPBlock {
-
-        }
-
-        class Block(
-            val begin: Regex,
-            val end: Regex
-        ){
-            val body = Regex("(?<=BEGIN\\s)[\\s\\S]*?(?=\\sEND;)")
-        }
+        val basicRow = Regex("(?<=;|^).*?(?=;)")
+        val loopBlock = Regex("(?<=;|^)(?:[^;]* |)LOOP (?:(?R)|.)*?(?<=;)END LOOP(?: [^;]*|);")
 
         private val ignoreQuotesPattern
             get() = "(?=(?:[^']*'[^']*')*[^']*\$)"
+
     }
 
 
