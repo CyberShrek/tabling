@@ -10,7 +10,7 @@ class SqlProcedure(private var procedureText: String){
             .erase(bracketedComment)
             .trim()
             .replace(whitespace, " ")
-            .replace(semicolonSeparator, ";")
+            .replace(semicolonSeparatorQuotesIgnored, ";")
     }
 
     // Collecting quoted strings and replacing them with their own indices in the text
@@ -24,8 +24,6 @@ class SqlProcedure(private var procedureText: String){
         }
     }
 
-    val expressions = CompositeExpression(procedureText).expressions
-
     private companion object Regexes {
 
         private const val ignoreQuotesPattern = "(?=(?:[^']*'[^']*')*[^']*\$)"
@@ -35,7 +33,7 @@ class SqlProcedure(private var procedureText: String){
         val whitespace = Regex("\\s+")
         val simpleComment = Regex("--.*")
         val bracketedComment = Regex("/\\*.*\\*/")
-        val semicolonSeparator = Regex("\\s*;\\s*$ignoreQuotesPattern")
+        val semicolonSeparatorQuotesIgnored = Regex("\\s*;\\s*(?=(?:[^']*'[^']*')*[^']*\$)")
         val assignmentOperator = Regex("\\s?(=|:=)\\s?")
 
         val BEGINBody   = Regex("(?i)(?<=BEGIN\\s)[\\s\\S]*?(?=END(?: [^;]*|);\$)")
@@ -43,35 +41,10 @@ class SqlProcedure(private var procedureText: String){
         val quotedText = Regex("'(?:''|[^'])*'")
         val unescapedQuote = Regex("'(?!')")
 
-        val tableName = Regex("(?i)[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
-
-        val expression = Regex("$loopBlockPattern|$basicRowPattern")
-
-        val loopExpressionEnd = Regex("(?i)(?<=;| )END LOOP(?=;\$|\$)")
-        val loopExpressionCondition = Regex("(?i)(?i)(?<=^)[^;]*?(?= LOOP )")
+        val name = Regex("(?i)[a-z_][a-z0-9_]*")
+        val entityName = Regex("$name\\.$name")
     }
 
-    interface Expression
-
-    open inner class CompositeExpression(text: String): Expression{
-        val expressions: List<Expression> = text
-            .find(BEGINBody)?.value
-            ?.findAll(expression)?.toList()
-            ?.map { createExpression(it.value) }
-            ?: emptyList()
-    }
-
-    inner class BasicRowExpression(val text: String): Expression
-
-    inner class LoopBlockExpression(text: String): CompositeExpression(text){
-        val condition: String = text.find(loopExpressionCondition)?.value ?: ""
-    }
-
-    private fun createExpression(expressionText: String) =
-        if(expressionText.contains(loopExpressionEnd))
-            LoopBlockExpression(expressionText)
-        else
-            BasicRowExpression(expressionText)
 
     private fun String.erase(value: String) = replace(value, "")
     private fun String.erase(regex: Regex) = replace(regex, "")
