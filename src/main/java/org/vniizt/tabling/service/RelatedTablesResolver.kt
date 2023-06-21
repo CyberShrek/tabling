@@ -8,8 +8,6 @@ class RelatedTablesResolver {
 
     fun findRelatedTables(procedureText: String) = HashSet<RelatedTables>().apply {
 
-
-
         procedureText
             .prepareForAnalysis()
             .split(semicolonSeparatorQuotesIgnored)
@@ -36,16 +34,14 @@ class RelatedTablesResolver {
         val simpleComment = Regex("--.*")
         val bracketedComment = Regex("/\\*.*\\*/")
         val semicolonSeparatorQuotesIgnored = Regex("\\s*;\\s*(?=(?:[^']*'[^']*')*[^']*\$)")
-        val assignmentOperator = Regex("\\s?(=|:=)\\s?")
 
         val BEGINBody   = Regex("(?i)(?<=BEGIN\\s)[\\s\\S]*?(?=END(?: [^;]*|);\$)")
 
         val quotedText = Regex("'(?:''|[^'])*'")
 
-        val name = Regex("\\D\\w*")
-        val entityName = Regex("$name\\.$name")
-
-        val targetTable = Regex("(?i)(?<=(?:^|\\W)(?:UPDATE|INSERT INTO) )\\D\\w*\\.\\D\\w*")
+        val entityName = Regex("\\D\\w*(?:\\.(?=\\S)\\D\\w*|)")
+        val target = Regex("(?i)(?<=(?:^|\\W)(?:UPDATE|INSERT INTO) )$entityName")
+        val source = Regex("(?i)(?<=(?:\\W)(?:FROM|JOIN) )$entityName")
     }
 
     private fun String.erase(value: String) = replace(value, "")
