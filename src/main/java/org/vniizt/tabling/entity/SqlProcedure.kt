@@ -24,14 +24,13 @@ class SqlProcedure(private var procedureText: String){
         }
     }
 
-    val expressions: List<Expression> = mutableListOf<Expression>().apply {
-        BEGINBody.find(
-            procedureText
-
-        )
-    }
+    val expressions = CompositeExpression(procedureText).expressions
 
     private companion object Regexes {
+
+        private const val ignoreQuotesPattern = "(?=(?:[^']*'[^']*')*[^']*\$)"
+        private const val basicRowPattern = "(?<=;|^).*?(?=;)"
+        private const val loopBlockPattern = "(?i)(?<=;|^|)(?:|[^;]*? )LOOP (?:(?R)|.)*?(?<=;)END LOOP(?=(?: [^;]*|);)"
 
         val whitespace = Regex("\\s+")
         val simpleComment = Regex("--.*")
@@ -39,79 +38,43 @@ class SqlProcedure(private var procedureText: String){
         val semicolonSeparator = Regex("\\s*;\\s*$ignoreQuotesPattern")
         val assignmentOperator = Regex("\\s?(=|:=)\\s?")
 
-        val BEGINBody   = Regex("(?<=BEGIN\\s)[\\s\\S]*?(?=\\sEND;$)")
+        val BEGINBody   = Regex("(?i)(?<=BEGIN\\s)[\\s\\S]*?(?=END(?: [^;]*|);\$)")
 
         val quotedText = Regex("'(?:''|[^'])*'")
         val unescapedQuote = Regex("'(?!')")
 
-        val tableName = Regex("[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
+        val tableName = Regex("(?i)[a-z_][a-z0-9_]*?\\.[a-z_][a-z0-9_]*?")
 
-        val basicRow = Regex("(?<=;|^).*?(?=;)")
-        val loopBlock = Regex("(?<=;|^)(?:[^;]* |)LOOP (?:(?R)|.)*?(?<=;)END LOOP(?: [^;]*|);")
+        val expression = Regex("$loopBlockPattern|$basicRowPattern")
 
-        private val ignoreQuotesPattern
-            get() = "(?=(?:[^']*'[^']*')*[^']*\$)"
-
+        val loopExpressionEnd = Regex("(?i)(?<=;| )END LOOP(?=;\$|\$)")
+        val loopExpressionCondition = Regex("(?i)(?i)(?<=^)[^;]*?(?= LOOP )")
     }
 
+    interface Expression
+
+    open inner class CompositeExpression(text: String): Expression{
+        val expressions: List<Expression> = text
+            .find(BEGINBody)?.value
+            ?.findAll(expression)?.toList()
+            ?.map { createExpression(it.value) }
+            ?: emptyList()
+    }
+
+    inner class BasicRowExpression(val text: String): Expression
+
+    inner class LoopBlockExpression(text: String): CompositeExpression(text){
+        val condition: String = text.find(loopExpressionCondition)?.value ?: ""
+    }
+
+    private fun createExpression(expressionText: String) =
+        if(expressionText.contains(loopExpressionEnd))
+            LoopBlockExpression(expressionText)
+        else
+            BasicRowExpression(expressionText)
 
     private fun String.erase(value: String) = replace(value, "")
     private fun String.erase(regex: Regex) = replace(regex, "")
-
-    open class Expression(
-//        val
-    )
-
-    class BEGINExpression(expressionText: String){
-
-    }
-
-    open class ConditionalExpression(expressionText: String,
-                                     conditionRegex: Regex): Expression()
-    {
-        val conditionText: String = conditionRegex.find(expressionText)?.value ?: ""
-    }
-
-    class IFExpression(expressionText: String): ConditionalExpression(
-        expressionText,
-        IFBlock.IF
-    ) {
-        val thenExpressions: List<Expression> = listOf()
-        val elsifExpressions: List<ELSIFExpression> = listOf()
-        val elseExpressions: List<Expression> = listOf()
-
-        class ELSIFExpression(expressionText: String): ConditionalExpression(
-            expressionText,
-            IFBlock.ELSEIF
-        ){
-            val thenExpressions: List<Expression> = listOf()
-        }
-    }
-
-//    class CASEExpression(text: String): Expression{
-//        val whenExpressions: List<WHENExpression> = listOf()
-//        val elseExpressions: List<Expression> = listOf()
-//
-//        class WHENExpression(text: String): ConditionalExpression(){
-//
-//        }
-//    }
-//
-//    open class LOOPExpression(text: String): ConditionalExpression(){
-//
-//    }
-//
-//    open class LOOPQUERYExpression(text: String): LOOPExpression(text){
-//        val query: QueryExpression? = null
-//    }
-//
-//    class RECORDLOOPExpression(text: String): LOOPQUERYExpression(text){
-//        val recordVariable: String = ""
-//    }
-
-//    open class OtherExpression(val text: String): Expression
-//
-//    class QueryExpression(text: String): OtherExpression(text){
-//
-//    }
+    private fun String.find(regex: Regex) = regex.find(this)
+    private fun String.findAll(regex: Regex) = regex.findAll(this)
 }

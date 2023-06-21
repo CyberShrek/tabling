@@ -37,35 +37,15 @@ class RelatedTablesResolverTest {
 //        }
 //    }
 
+
     @Test
-    fun play(): Unit {
-        val str = "some text -|- -|- -|- -|- -|- some text"
-        var count = 0
-        val result = str.replace(Regex("-\\|-") ) { it.value+(count++).toString() }
-        println(result)
+    fun play() {
+        val case = readCase(1)
 
-        val str1 = "inter''val '  1   da'' ''y   ''1 da   '   'ddcd' ' ''y   ' rfreferrerggrgrg"
-        //unescaped quote
-        Regex("'(?:''|[^'])*'").findAll(str1).map { it.value.replace(Regex("'(?!')"), "") }.forEach {
-            println(it)
-        }
+        println(case)
 
+        println(SqlProcedure(case))
 
-    }
-
-//    @Test
-    fun testIFExpressions(){
-        try{
-            with(SqlProcedure.IFExpression("""
-                |IF (a != b) THEN a := b; END IF
-            """.trimIndent())){
-                assert(conditionText == "(a != b)")
-//                assert()
-            }
-        }
-        catch (error: AssertionError){
-            fail(error.message)
-        }
     }
 
     private fun processTestCase(number: Byte){
@@ -77,8 +57,8 @@ class RelatedTablesResolverTest {
         return file.readLines()
     }
 
-    fun readTextFromFile(filePath: String): String {
-        val file = File(filePath)
+    fun readCase(caseNumber: Int): String {
+        val file = File("test-cases/case-$caseNumber.sql")
         return file.readText()
     }
 }
