@@ -15,7 +15,6 @@ import org.vniizt.tabling.entity.RelatedTables;
 import org.vniizt.tabling.entity.TableStructure;
 import org.vniizt.tabling.entity.DocumentParams;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

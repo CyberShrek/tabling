@@ -1,1 +1,1 @@
-schema_b.table_a -> schema_a.table_a
+schema_a.table_b -> schema_a.table_a
