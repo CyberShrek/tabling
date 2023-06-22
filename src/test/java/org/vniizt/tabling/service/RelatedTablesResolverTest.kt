@@ -26,6 +26,7 @@ RelatedTablesResolverTest {
 
                 if(relatedTablesSet != expectedRelatedTablesSet)
                     fail("""
+                        |case $caseNumber
                         |related tables: 
                         |   $relatedTablesSet
                         |expected: 

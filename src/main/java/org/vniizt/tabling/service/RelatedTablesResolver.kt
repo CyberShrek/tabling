@@ -10,48 +10,65 @@ class RelatedTablesResolver {
 
         println("--- procedureText --- \n$procedureText")
 
-        // Key is record name, values are sources
-        val records = mutableMapOf<String, List<String>>()
+        // Key is variable name, values are sources
+        val variablesSources = mutableMapOf<String, List<String>>()
 
         procedureText
             .prepareForAnalysis()
             .also {
                 println("--- trimmed --- \n$it")
             }
-            .split(semicolonSeparatorQuotesIgnored)
+            .split(semicolon)
             .forEach {
+                println(it)
 
-                println("--- row --- \n$it")
-
-                // Filling in records
+                // Looking for record variables
                 it.findAll(recordName).forEach {recordNameResult ->
                     val recordName = recordNameResult.value
-                    records[recordName] = it.find(getRecordQueryRegex(recordName))?.value
+                    variablesSources[recordName] = it.find(getRecordQueryRegex(recordName))?.value
                         ?.findAll(sourceName)?.map { sourceNameResult -> sourceNameResult.value }
                         ?.toList() ?: emptyList()
 
-                    println("--- sources for record $recordName: ${records[recordName]}")
+                    println("--- sources for record $recordName: ${variablesSources[recordName]}")
+                }
+
+                // Looking for select-into variables
+                val sourceNames = it.findAll(sourceName).map { sourceNameResult -> sourceNameResult.value }.toList()
+                it.find(intoBody)?.value?.split(comma)?.forEach { variableName ->
+                    variablesSources[variableName] = sourceNames
+
+                    println("--- sources for variable $variableName: $sourceNames")
                 }
 
                 val targetName = it.find(targetName)?.value
 
+                // Resulting
                 if(targetName != null) {
-                    println("--- targetName --- \n$targetName")
+                    println("--- targetName $targetName")
 
-                    // Resulting
-                    it.findAll(sourceName).forEach { sourceNameResult ->
-                        fun addSourceName(name: String) =
+                    fun addSourceName(name: String) {
+                        if (name != targetName)
                             this.add(RelatedTables(startTable = name, endTable = targetName))
+                    }
+
+                    it.findAll(sourceName).forEach { sourceNameResult ->
 
                         val sourceName = sourceNameResult.value
 
-                        println("--- sourceName --- \n$sourceName")
+                        println("--- sourceName $sourceName")
 
                         if(sourceName.contains('.'))
                             // Checking if the source is a record
-                            records[sourceName.substringBefore(".")]
+                            variablesSources[sourceName.substringBefore(".")]
                                 ?.forEach { recordSourceName -> addSourceName(recordSourceName) }
                                 ?: addSourceName(sourceName)
+                    }
+
+                    it.find(valuesBody)?.value?.split(comma)?.forEach {value ->
+                        println("--- value $value")
+                        if (value.contains('.'))
+                            variablesSources[value.substringBefore(".")]
+                                ?.forEach { recordSourceName -> addSourceName(recordSourceName) }
                     }
                 }
             }
@@ -69,7 +86,8 @@ class RelatedTablesResolver {
         val whitespace = Regex("\\s+")
         val simpleComment = Regex("--.*")
         val bracketedComment = Regex("/\\*.*\\*/")
-        val semicolonSeparatorQuotesIgnored = Regex("\\s*;\\s*(?=(?:[^']*'[^']*')*[^']*\$)")
+        val semicolon = Regex("\\s*;\\s*")
+        val comma = Regex("\\s*,\\s*")
 
         val BEGINBody   = Regex("(?i)(?<=BEGIN\\s)[\\s\\S]*?(?=END(?:\\s[^;]*|);\$)")
 
@@ -80,7 +98,8 @@ class RelatedTablesResolver {
         val targetName = Regex("(?<=(?:^|\\W)(?:(?i)UPDATE|INSERT\\sINTO)\\s)$entityName")
         val sourceName = Regex("(?<=(?:\\W)(?:(?i)FROM|JOIN)\\s)$entityName")
         val recordName = Regex("(?<=(?:^|\\W)(?:(?i)FOR)\\s)$simpleName(?=\\s(?i)IN(?:\\s|\\s?\\())")
-        val valuesBody = Regex("(?<=(?i)VALUES\\().*?(?=\\))")
+        val intoBody   = Regex("(?i)(?<=\\WINTO\\s).*?(?=\\WFROM)")
+        val valuesBody = Regex("(?<=(?i)VALUES\\s?\\().*?(?=\\))")
 
         fun getRecordQueryRegex(recordName: String) = Regex("(?<=\\W$recordName\\s(?i)IN\\W).*?(?=\\W(?i)LOOP\\W)")
     }

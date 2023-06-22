@@ -1,4 +1,3 @@
-
 DECLARE
     datecalc DATE;-- Дата расчета (этот месяц)
 datecalc1 DATE;-- Дата расчета (прошлый месяц)
@@ -380,4 +379,4 @@ END LOOP; -- 1.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 --insert into svod.test (message) values(tms::text||' STOP' );
 
 RETURN;
-END
+END;
