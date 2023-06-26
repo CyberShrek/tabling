@@ -10,9 +10,12 @@ function showBindingsDisplay() {
     window.scrollTo(0,bindingsDisplayScroll)
 
     function addArrows() {
-        for (const tableBlock of bindingsDisplayEl.getElementsByClassName("table-block"))
-            for (const foreignTable of getForeignTables(tableBlock))
-                addLeaderArrow(tableBlock, foreignTable, bindingsDisplayEl)
+        relatedTablesPromise.then(relatedTablesList => relatedTablesList.forEach(relatedTables => {
+            addLeaderArrow(
+                document.getElementById(relatedTables.startTable+"|-in-bindings"),
+                document.getElementById(relatedTables.endTable+"|-in-bindings"),
+                bindingsDisplayEl)
+        }))
     }
 }
 

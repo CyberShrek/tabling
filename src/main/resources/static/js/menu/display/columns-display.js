@@ -16,27 +16,43 @@ function showColumnsDisplay() {
             // assigning rows id
             row.id = tableBlock.id + "-row"
             // adding tables
-            for (const foreignTable of getForeignTables(tableBlock)) {
+            relatedTablesPromise.then(relatedTablesList => relatedTablesList.forEach(relatedTables => {
+                const startTable = document.getElementById(relatedTables.startTable+"|-in-columns")
+                const endTable = document.getElementById(relatedTables.endTable+"|-in-columns")
+                if(tableBlock === startTable){
+                    addForeignTableClone(endTable, "outers", true)
+                }
+                else if(tableBlock === endTable){
+                    addForeignTableClone(startTable, "inners", false)
+                }
+            }))
+
+            function addForeignTableClone(foreignTable, foreignTableBlockName, arrowIsBefore){
+                if(foreignTable === null) return
                 const foreignTableClone = foreignTable.cloneNode(true)
-                const outers = row.getElementsByTagName("outers")[0]
+                const foreignTableBlock = row.getElementsByTagName(foreignTableBlockName)[0]
                 foreignTableClone.style.background = "var(--second-table-block-color)"
-                outers.append(foreignTableClone)
-                if (outers.childNodes.length === 1)
-                    outers.before(createRowArrow())
+                foreignTableBlock.append(foreignTableClone)
+                if (foreignTableBlock.childNodes.length === 1) {
+                    if (arrowIsBefore === true)
+                        foreignTableBlock.before(createRowArrow())
+                    else
+                        foreignTableBlock.after(createRowArrow())
+                }
             }
         }
-        // adding income tables
-        for (const row of rows) {
-            for (const outerTable of row.getElementsByTagName("outers")[0].getElementsByClassName("table-block")) {
-                const innerTable = row.getElementsByTagName("selected")[0].getElementsByClassName("table-block")[0].cloneNode(true)
-                const targetRow = document.getElementById(outerTable.id + "-row")
-                const inners = targetRow.getElementsByTagName("inners")[0]
-                innerTable.style.background = "var(--second-table-block-color)"
-                inners.append(innerTable)
-                if (inners.childNodes.length === 1)
-                    inners.after(createRowArrow())
-            }
-        }
+        // // adding income tables
+        // for (const row of rows) {
+        //     for (const outerTable of row.getElementsByTagName("outers")[0].getElementsByClassName("table-block")) {
+        //         const innerTable = row.getElementsByTagName("selected")[0].getElementsByClassName("table-block")[0].cloneNode(true)
+        //         const targetRow = document.getElementById(outerTable.id + "-row")
+        //         const inners = targetRow.getElementsByTagName("inners")[0]
+        //         innerTable.style.background = "var(--second-table-block-color)"
+        //         inners.append(innerTable)
+        //         if (inners.childNodes.length === 1)
+        //             inners.after(createRowArrow())
+        //     }
+        // }
     }
 }
 function updateColumnsDisplay() {

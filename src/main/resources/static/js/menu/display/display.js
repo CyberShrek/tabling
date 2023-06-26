@@ -13,26 +13,6 @@ function hideDisplays() {
         hideBindingsDisplay()
 }
 
-function getForeignTables(tableBlock) {
-    // Костыль, переделать
-    let foreignTables = [];
-    let foreignTablesString = tableBlock.getElementsByTagName("foreign-tables")[0].textContent;
-    if (foreignTablesString !== "[]") {
-        foreignTablesString = foreignTablesString.replace("[", "")
-            .replace("]", "").split(", ");
-        let idPostfix = tableBlock.id.toString().split('|')[1]
-        for (const foreignTablesName of foreignTablesString) {
-            const foreignTableId = foreignTablesName + "|" + idPostfix
-            const foreignTable = document.getElementById(foreignTableId)
-            if (foreignTable !== null)
-                foreignTables.push(foreignTable)
-            else
-                console.error("Foreign table with id '" + foreignTableId + "' is not found")
-        }
-    }
-    return foreignTables;
-}
-
 function showTableStructure(schemaName, tableName) {
     const url = "menu/table-structure"
     let tableStructure = {}

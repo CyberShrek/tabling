@@ -9,13 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.vniizt.tabling.dao.TablingNew;
-import org.vniizt.tabling.dao.TablingProxy;
+import org.vniizt.tabling.service.Tabling;
 import org.vniizt.tabling.entity.RelatedTables;
 import org.vniizt.tabling.entity.TableStructure;
 import org.vniizt.tabling.entity.DocumentParams;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,18 +23,14 @@ import java.util.Set;
 @Controller
 @RequestMapping("/menu")
 public class MenuController {
-    @Autowired
-    private TablingProxy tabling;
 
     @Autowired
-    private TablingNew tablingNew;
+    private Tabling tabling;
 
-    // Получение списков схем и таблиц, а также клиентских моделей таблиц
     @GetMapping
     @Transactional
-    public String showMainPage(Model model){
-        tabling.updateCache();
-        model.addAttribute("tabling", tabling);
+    public String getMenu(Model model){
+        model.addAttribute("schemasTables", tabling.getSchemasTables());
         model.addAttribute("params", new DocumentParams());
         return "menu";
     }
@@ -50,10 +44,10 @@ public class MenuController {
     }
 
     // Получение связей таблиц
-    @GetMapping(value = "/table-bindings", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/related-tables", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Set<RelatedTables>> getTableBindings(){
-        return tablingNew.getProcedureRelatedTables();
+    public Set<RelatedTables> getTableBindings(){
+        return tabling.getRelatedTables();
     }
 }
 

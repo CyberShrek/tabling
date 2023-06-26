@@ -4,7 +4,6 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.vniizt.tabling.dao.TablingJdbc;
 import org.vniizt.tabling.entity.DocumentParams;
 import org.vniizt.tabling.service.docx.DocumentCompiler;
 import org.vniizt.tabling.service.docx.TablesInfo;
@@ -17,8 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * @author Alexander Ilyin
@@ -26,9 +23,6 @@ import java.util.Objects;
 
 @Service
 public class DocumentService {
-
-    @Autowired
-    private TablingJdbc jdbc;
 
     @Autowired
     private DataSource dataSource;

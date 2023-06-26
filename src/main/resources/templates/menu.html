@@ -45,17 +45,16 @@
                    onclick="selectedTables = getAllTables(); showColumnsDisplay(); updateColumnsDisplay()"
             >
         </div>
-        <th:block th:each="schema : ${tabling.getSchemasSet()}">
-            <th:block th:each="table : ${tabling.getTablesBySchemaSet(schema)}">
+        <th:block th:each="schema : ${schemasTables}">
+            <th:block th:each="tableName : ${schema.value}">
                 <row>
                     <inners></inners>
                     <selected>
-                        <div class="table-block" th:id="${schema}+'.'+${table} + '|-in-columns'">
+                        <div class="table-block" th:id="${schema.key}+'.'+${tableName} + '|-in-columns'">
                             <div class="button"
-                                 th:onclick="showTableStructure([[${schema}]],[[${table}]])"
-                                 th:text="${schema}+'.'+${table}"
+                                 th:onclick="showTableStructure([[${schema.key}]],[[${tableName}]])"
+                                 th:text="${schema.key}+'.'+${tableName}"
                             ></div>
-                            <foreign-tables hidden th:text="${tabling.getForeignTables(schema, table)}"></foreign-tables>
                         </div>
                     </selected>
                     <outers></outers>
@@ -73,16 +72,15 @@
                    onclick="selectedTables = getAllTables(); showBindingsDisplay(); updateBindingsDisplay()"
             >
         </div>
-        <th:block th:each="schema : ${tabling.getSchemasSet()}">
+        <th:block th:each="schema : ${schemasTables}">
             <div class="tables-set">
-                <header th:text="${schema}"></header>
-                <th:block th:each="table : ${tabling.getTablesBySchemaSet(schema)}">
-                    <div class="table-block" th:id="${schema}+'.'+${table} + '|-in-bindings'">
+                <header th:text="${schema.key}"></header>
+                <th:block th:each="tableName : ${schema.value}">
+                    <div class="table-block" th:id="${schema.key}+'.'+${tableName} + '|-in-bindings'">
                         <div class="button"
-                             th:onclick="showTableStructure([[${schema}]],[[${table}]])"
-                             th:text="${table}"
+                             th:onclick="showTableStructure([[${schema.key}]],[[${tableName}]])"
+                             th:text="${tableName}"
                         ></div>
-                        <foreign-tables hidden th:text="${tabling.getForeignTables(schema, table)}"></foreign-tables>
                     </div>
                 </th:block>
             </div>
@@ -130,9 +128,9 @@
 
         <div class="menus scroller">
             <!--Этот цикл динамически создаёт меню для выбора схем и таблиц-->
-            <th:block th:each="schema : ${tabling.getSchemasSet()}">
-                <form class="menu" th:id="${schema}">
-                    <div class="title" th:title="'Схема '+${schema}" th:onclick="collapseMenu([[${schema}]])">
+            <th:block th:each="schema : ${schemasTables}">
+                <form class="menu" th:id="${schema.key}">
+                    <div class="title" th:title="'Схема '+${schema.key}" th:onclick="collapseMenu([[${schema.key}]])">
                         <label>
                             <input type="checkbox"
                                    class="marker"
@@ -141,27 +139,27 @@
                             >
                         </label>
                         <label class="text">
-                            [[${schema}]]
+                            [[${schema.key}]]
                         </label>
                     </div>
                     <div class="drop-down">
-                        <th:block th:each="table : ${tabling.getTablesBySchemaSet(schema)}">
-                            <div class="unit" th:id="${schema}+'.'+${table}">
+                        <th:block th:each="tableName : ${schema.value}">
+                            <div class="unit" th:id="${schema.key}+'.'+${tableName}">
                                 <label>
                                     <input type="checkbox"
                                            onclick="handleCheckboxes(this.form.id);
                                            updateSelectedTables()"
                                     >
-                                    [[${table}]]
+                                    [[${tableName}]]
                                 </label>
-                                <procedure-tables hidden th:text="${tabling.getProcedureNames(schema, table)}"></procedure-tables>
+<!--                                <procedure-tables hidden th:text="${tabling.getProcedureNames(schema, table)}"></procedure-tables>-->
                             </div>
                         </th:block>
                     </div>
                 </form>
                 <script th:inline="javascript">
                     // Сразу после загрузки формы меняет значения тайтла, если в кэше уже были выбраны один или более пунктов меню
-                    handleCheckboxes([[${schema}]])
+                    handleCheckboxes([[${schema.key}]])
                 </script>
             </th:block>
         </div>
@@ -308,6 +306,8 @@
     const popUpEl = document.getElementById("pop-up")
     const tableStructureEl = document.getElementById("table-structure")
     const templateEditorEl = document.getElementById("template-editor")
+    const relatedTablesPromise = fetch(location.href+"/related-tables").then(response => response.json())
+
 
     document.addEventListener('keydown', (event) => {
         if (event.key === "Escape")

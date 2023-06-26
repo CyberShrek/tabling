@@ -5,7 +5,6 @@ function updateSqlCreator() {
         notFoundNota = sqlCreator.querySelector(".notation")
 
     flushProcedures()
-    updateProceduresNames()
 
     if (procedureNames.length > 0) {
         notFoundNota.style.display = "none"
@@ -26,21 +25,6 @@ function updateSqlCreator() {
     function flushProcedures() {
         sqlCreator.querySelectorAll(".procedure").forEach(
             procedure => procedure.remove())
-    }
-
-    function updateProceduresNames() {
-        let queriesNames = []
-        for (const selectedTable of selectedTables) {
-            // Костыль, переделать
-            let queriesString = selectedTable.querySelector("procedure-tables").textContent
-            if (queriesString !== "[]") {
-                queriesString.replace("[", "")
-                    .replace("]", "")
-                    .split(", ")
-                    .forEach(queriesName => queriesNames.push(queriesName))
-            }
-        }
-        procedureNames = queriesNames
     }
 }
 

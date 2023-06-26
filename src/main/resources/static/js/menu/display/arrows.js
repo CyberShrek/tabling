@@ -7,12 +7,14 @@ const basicArrowColor = "slategrey",
     outerArrowColor = "deepskyblue"
 
 // Добавляет стрелки-соединители связанных таблиц
-function addLeaderArrow(table, foreignTable, display) {
-    let arrow;
+function addLeaderArrow(startTable, endTable, display) {
+    if (!startTable || !endTable || !display) return
+
+    let arrow = createArrow(startTable, endTable);
     display.addEventListener("updateArrows", function () {
-        if (table.style.display !== "none" && foreignTable.style.display !== "none") {
+        if (startTable.style.display !== "none" && endTable.style.display !== "none") {
             if (arrow == null) {
-                arrow = createArrow(table, foreignTable)
+                arrow = createArrow(startTable, endTable)
             } else {
                 arrow.position()
                 arrow.show("none")
@@ -33,14 +35,14 @@ function addLeaderArrow(table, foreignTable, display) {
         }
     }, false);
 
-    table.addEventListener("mouseenter", function () {addOuterHighlights()}, false);
-    table.addEventListener("mouseleave", function () {removeHighlights()}, false);
-    foreignTable.addEventListener("mouseenter", function () {addInnerHighlights()}, false);
-    foreignTable.addEventListener("mouseleave", function () {removeHighlights()}, false);
+    startTable.addEventListener("mouseenter", function () {addOuterHighlights()}, false);
+    startTable.addEventListener("mouseleave", function () {removeHighlights()}, false);
+    endTable.addEventListener("mouseenter", function () {addInnerHighlights()}, false);
+    endTable.addEventListener("mouseleave", function () {removeHighlights()}, false);
     document.addEventListener("scroll", function () {removeHighlights()}, false);
 
     function addInnerHighlights() {
-        table.classList.add("highlight")
+        startTable.classList.add("highlight")
         if (arrow != null)
             arrow.setOptions({
                 color: innerArrowColor,
@@ -50,7 +52,7 @@ function addLeaderArrow(table, foreignTable, display) {
                 dash: {animation: true}})
     }
     function addOuterHighlights() {
-        foreignTable.classList.add("highlight")
+        endTable.classList.add("highlight")
         if (arrow != null)
             arrow.setOptions({
                 color: outerArrowColor,
@@ -60,8 +62,8 @@ function addLeaderArrow(table, foreignTable, display) {
                 dash: {animation: true}})
     }
     function removeHighlights() {
-        table.classList.remove("highlight")
-        foreignTable.classList.remove("highlight")
+        startTable.classList.remove("highlight")
+        endTable.classList.remove("highlight")
         if (arrow != null)
             arrow.setOptions({
                 color: 'initial',
