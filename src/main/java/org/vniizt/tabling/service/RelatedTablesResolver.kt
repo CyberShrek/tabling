@@ -10,10 +10,15 @@ class RelatedTablesResolver {
         // Key is variable name, values are sources
         val variablesSources = mutableMapOf<String, List<String>>()
 
+        var defaultSchema = "public"
+
         procedureText
             .prepareForAnalysis()
             .split(semicolon)
             .forEach {
+                // Assigning schema name
+                defaultSchema = it.find(setSchemaName)?.value ?: defaultSchema
+
                 // Looking for record variables
                 it.findAll(recordName).forEach {recordNameResult ->
                     val recordName = recordNameResult.value
@@ -28,10 +33,12 @@ class RelatedTablesResolver {
                     variablesSources[variableName] = sourceNames
                 }
 
-                val targetName = it.find(targetName)?.value
+                var targetName = it.find(targetName)?.value
 
                 // Resulting
                 if(targetName != null) {
+                    targetName = if(targetName.contains(".")) targetName else "$defaultSchema.$targetName"
+
                     fun addSourceName(name: String) {
                         if (name != targetName)
 
@@ -84,14 +91,15 @@ class RelatedTablesResolver {
             "(?!BEGIN|CASE|WHEN|IF|THEN|FROM|IS|DISTINCT|ELSE|WHERE|LOOP|AND|OR|NOT|NULL|ISNULL|NOTNULL|TRUE|FALSE|LIKE|UNKNOWN|BETWEEN|SELECT|END)"
         private const val name = "(?<=\\W|^)[a-z_\$]\\w*(?=\\W|\$)"
 
-        val simpleName = Regex("(?:(?i)$excludeOperatorNamesPattern$name)")
-        val entityName = Regex("(?:(?i)$excludeOperatorNamesPattern$name(?:\\.$name|))")
-        val targetName = Regex("(?<=(?:^|\\W)(?:(?i)UPDATE|INSERT\\sINTO)\\s)$entityName")
-        val sourceName = Regex("(?<=(?:\\W)(?:(?i)FROM|JOIN)\\s)$entityName")
-        val recordName = Regex("(?<=(?:^|\\W)(?:(?i)FOR)\\s)$simpleName(?=\\s(?i)IN(?:\\s|\\s?\\())")
-        val intoBody   = Regex("(?i)(?<=\\WINTO\\s).*?(?=\\WFROM)")
-        val valuesBody = Regex("(?<=(?i)VALUES\\s?\\().*?(?=\\))")
-        val setBody    = Regex("(?i)(?<=\\WSET\\s).*\$")
+        val simpleName     = Regex("(?:(?i)$excludeOperatorNamesPattern$name)")
+        val entityName     = Regex("(?:(?i)$excludeOperatorNamesPattern$name(?:\\.$name|))")
+        val targetName     = Regex("(?<=(?:^|\\W)(?:(?i)UPDATE|INSERT\\sINTO)\\s)$entityName") // (?<=(?:^|\W)(?:(?i)UPDATE|INSERT\sINTO)\s)(?:(?i)(?!BEGIN|CASE|WHEN|IF|THEN|FROM|IS|DISTINCT|ELSE|WHERE|LOOP|AND|OR|NOT|NULL|ISNULL|NOTNULL|TRUE|FALSE|LIKE|UNKNOWN|BETWEEN|SELECT|END)(?<=\W|^)[a-z_$]\w*(?=\W|$)(?:\.(?<=\W|^)[a-z_$]\w*(?=\W|$)|))
+        val sourceName     = Regex("(?<=(?:\\W)(?:(?i)FROM|JOIN)\\s)$entityName")
+        val recordName     = Regex("(?<=(?:^|\\W)(?:(?i)FOR)\\s)$simpleName(?=\\s(?i)IN(?:\\s|\\s?\\())")
+        val intoBody       = Regex("(?i)(?<=\\WINTO\\s).*?(?=\\WFROM)")
+        val valuesBody     = Regex("(?<=(?i)VALUES\\s?\\().*?(?=\\))")
+        val setBody        = Regex("(?i)(?<=\\WSET\\s).*\$")
+        val setSchemaName  = Regex("(?<=(?i)SET\\ssearch_path\\sTO\\s).*?(?=\\W|\$)")
 
         fun getRecordQueryRegex(recordName: String) = Regex("(?<=\\W$recordName\\s(?i)IN\\W).*?(?=\\W(?i)LOOP\\W)")
     }
