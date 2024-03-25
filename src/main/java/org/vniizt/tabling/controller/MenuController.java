@@ -28,7 +28,6 @@ public class MenuController {
     private Tabling tabling;
 
     @GetMapping
-    @Transactional
     public String getMenu(Model model){
         model.addAttribute("schemasTables", tabling.getSchemasTables());
         model.addAttribute("params", new DocumentParams());
@@ -46,7 +45,7 @@ public class MenuController {
     // Получение связей таблиц
     @GetMapping(value = "/related-tables", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Set<RelatedTables> getTableBindings(){
+    public Set<RelatedTables> getRelatedTables(){
         return tabling.getRelatedTables();
     }
 }

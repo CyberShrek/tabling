@@ -57,7 +57,11 @@ public class DocumentController {
     @GetMapping("/template/download")
     public void getTemplate(HttpServletResponse response) throws IOException {
         documentName = "template";
-        document = service.getTemplate();
+        try {
+            document = service.getTemplate();
+        } catch (Exception e){
+            document = new XWPFDocument();
+        }
         writeDocumentToResponse(response);
     }
 

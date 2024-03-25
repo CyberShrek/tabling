@@ -2,17 +2,19 @@ package org.vniizt.tabling.service
 
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.vniizt.tabling.entity.RelatedTables
 import org.vniizt.tabling.entity.TableStructure
 import org.vniizt.tabling.service.docx.TablesInfo
 import java.util.*
 
 @Service
-class Tabling(private var jdbc: JdbcTemplate,
-              private val resolver: RelatedTablesResolver) {
+@Transactional
+open class Tabling(private var jdbc: JdbcTemplate,
+                   private val resolver: RelatedTablesResolver) {
 
     // Key is a schema name, value is a set of its table names
-    fun getSchemasTables() = LinkedHashMap<String, MutableSet<String>>().apply {
+    open fun getSchemasTables() = LinkedHashMap<String, MutableSet<String>>().apply {
         with(jdbc.queryForRowSet(
             "SELECT DISTINCT table_schema, table_name " +
                     "FROM information_schema.tables " +
@@ -29,10 +31,11 @@ class Tabling(private var jdbc: JdbcTemplate,
     private val proceduresMapBuffer = HashMap<String, String>()
     private val relatedTablesSetBuffer = HashSet<RelatedTables>()
     @Synchronized
-    fun getRelatedTables() = relatedTablesSetBuffer.apply {
+    open fun getRelatedTables() = relatedTablesSetBuffer.apply {
         with(jdbc.queryForRowSet(
             "SELECT DISTINCT * FROM magic.get_procedures()"
         )) {
+            println(1)
             while (next()){
                 val procedureName = getString("procedure_name")!!
                 val procedureText = getString("procedure")!!
@@ -44,7 +47,7 @@ class Tabling(private var jdbc: JdbcTemplate,
         }
     }
 
-    fun getTableStructure(schemaName: String, tableName: String): TableStructure =
+    open fun getTableStructure(schemaName: String, tableName: String): TableStructure =
         with(TablesInfo(jdbc.dataSource!!.connection)) {
             TableStructure(
                 getTableHeading(schemaName, tableName),
