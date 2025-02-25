@@ -30,7 +30,7 @@ public class DocumentService {
     private TablesInfo tablesInfo;
     private DocumentCompiler documentCompiler;
 
-    private String templateLocation = "/opt/manual/catalog/template.docx";
+    private final String templateLocation = "/opt/manual/catalog/template.docx";
 
     @Transactional
     public XWPFDocument createDocument(DocumentParams params) throws Exception {
@@ -96,13 +96,13 @@ public class DocumentService {
         return new XWPFDocument(new FileInputStream(templateLocation));
     }
 
-    @PostConstruct
-    private void actualizeTemplateName() {
-        try{
-            new FileInputStream(templateLocation);
-        }
-        catch (FileNotFoundException exception){
-            templateLocation = "template.docx";
-        }
-    }
+//    @PostConstruct
+//    private void actualizeTemplateName() {
+//        try{
+//            new FileInputStream(templateLocation);
+//        }
+//        catch (FileNotFoundException exception){
+//            templateLocation = "template.docx";
+//        }
+//    }
 }
